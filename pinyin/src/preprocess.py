@@ -1,8 +1,13 @@
 import json
+import os
 from process_raw_dataset import process_raw_word_pinyin, process_raw_sina_data
 from config import *
 
-def output_counts():
+def output_counts(force=False):
+    if (not force) and os.path.exists(WORD_COUNT) and os.path.exists(BINARY_WORD_COUNT) and os.path.exists(FIRST_WORD_COUNT):
+        print('已经统计过字出现数量，跳过预处理过程。')
+        return
+
     process_raw_word_pinyin()
 
     with open(WORD_TABLE, 'r', encoding='utf-8') as f:

@@ -9,5 +9,5 @@ SINA_DATA = 'datasets/sina_news_gbk/2016-%02d.txt'
 SENTENCES_DATA = 'datasets/sina_sentences_%02d.json'
 
 WORD_COUNT = 'data/word_count.json'
-BINARY_WORD_COUNT = 'data/binary_word_count.bin'
+BINARY_WORD_COUNT = 'data/binary_word_count.json'
 FIRST_WORD_COUNT = 'data/first_word_count.json'
