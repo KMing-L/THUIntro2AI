@@ -36,7 +36,9 @@ def output_counts(ziyuan, force):
                     if word in may_new:
                         is_first = True
                     continue
-                if word in words and word in pinyin2words[sentence[1][idx]]:
+                if word in words \
+                    and sentence[1][idx] in pinyin2words \
+                    and word in pinyin2words[sentence[1][idx]]:
                     this_word = word + sentence[1][idx]
                     count[this_word] = count.get(this_word, 0) + 1
                     if is_first:
@@ -46,6 +48,7 @@ def output_counts(ziyuan, force):
                     if ziyuan == 2:
                         if idx > 0 \
                                 and sentence[0][idx - 1] in words \
+                                and sentence[1][idx - 1] in pinyin2words \
                                 and sentence[0][idx - 1] in pinyin2words[sentence[1][idx - 1]]:
                             last_word = sentence[0][idx - 1] + sentence[1][idx - 1]
                             if last_word not in binary_count:
@@ -55,8 +58,10 @@ def output_counts(ziyuan, force):
                     elif ziyuan == 3:
                         if idx > 1 \
                                 and sentence[0][idx - 1] in words \
+                                and sentence[1][idx - 1] in pinyin2words \
                                 and sentence[0][idx - 1] in pinyin2words[sentence[1][idx - 1]] \
                                 and sentence[0][idx - 2] in words \
+                                and sentence[1][idx - 2] in pinyin2words \
                                 and sentence[0][idx - 2] in pinyin2words[sentence[1][idx - 2]]:
                             last_word = sentence[0][idx - 1] + sentence[1][idx - 1]
                             last_last_word = sentence[0][idx - 2] + sentence[1][idx - 2]
