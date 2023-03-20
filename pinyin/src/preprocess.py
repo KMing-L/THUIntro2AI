@@ -3,8 +3,12 @@ import os
 from process_raw_dataset import process_raw_word_pinyin, process_raw_sina_data
 from config import *
 
-def output_counts(force=False):
-    if (not force) and os.path.exists(WORD_COUNT) and os.path.exists(BINARY_WORD_COUNT) and os.path.exists(FIRST_WORD_COUNT):
+
+def output_counts(ziyuan=2, force=False):
+    if (not force) \
+            and os.path.exists(WORD_COUNT) \
+            and os.path.exists(FIRST_WORD_COUNT) \
+            and ((ziyuan == 2 and os.path.exists(BINARY_WORD_COUNT)) or (ziyuan == 3 and os.path.exists(OPTIONAL_WORD_COUNT))):
         print('已经统计过字出现数量，跳过预处理过程。')
         return
 
@@ -19,7 +23,13 @@ def output_counts(force=False):
     for pinyin in count:
         count[pinyin] = dict.fromkeys(pinyin2words[pinyin], 0)
 
-    binary_count = {}
+    if ziyuan == 2:
+        binary_count = {}
+    elif ziyuan == 3:
+        optional_count = {}
+    else:
+        print('ziyuan must be 2 or 3')
+        return
     first_count = count.copy()
 
     may_new = [' ', '‘', '“', '《', '》', '：', '；', '-']
@@ -72,27 +82,45 @@ def output_counts(force=False):
                         try:
                             count[sentence[1][idx]][word] += 1
                         except KeyError:
-                            f.write('KeyError: ' + sentence[1][idx] + ' ' + word + '\n')
-                            f.write(sentence[0][idx - 1] + ' ' + sentence[0][idx] + ' ' + sentence[0][idx + 1] + '\n')
+                            f.write('KeyError: ' +
+                                    sentence[1][idx] + ' ' + word + '\n')
+                            f.write(sentence[0][idx - 1] + ' ' + sentence[0]
+                                    [idx] + ' ' + sentence[0][idx + 1] + '\n')
                     if is_first:
                         try:
                             first_count[sentence[1][idx]][word] += 1
                         except KeyError:
-                            f.write('KeyError: ' + sentence[1][idx] + ' ' + word + '\n')
-                            f.write(sentence[0][idx - 1] + ' ' + sentence[0][idx] + ' ' + sentence[0][idx + 1] + '\n')
+                            f.write('KeyError: ' +
+                                    sentence[1][idx] + ' ' + word + '\n')
+                            f.write(sentence[0][idx - 1] + ' ' + sentence[0]
+                                    [idx] + ' ' + sentence[0][idx + 1] + '\n')
                         is_first = False
-                    if idx < len(sentence[0]) - 1 and sentence[0][idx + 1] in words:
-                        if word not in binary_count:
-                            binary_count[word] = {}
-                        binary_count[word][sentence[0][idx + 1]] = binary_count[word].get(sentence[0][idx + 1], 0) + 1
-
+                    if ziyuan == 2:
+                        if idx < len(sentence[0]) - 1 and sentence[0][idx + 1] in words:
+                            if word not in binary_count:
+                                binary_count[word] = {}
+                            binary_count[word][sentence[0][idx + 1]
+                                               ] = binary_count[word].get(sentence[0][idx + 1], 0) + 1
+                    elif ziyuan == 3:
+                        if idx < len(sentence[0]) - 2 and sentence[0][idx + 1] in words and sentence[0][idx + 2] in words:
+                            if word not in optional_count:
+                                optional_count[word] = {}
+                            if sentence[0][idx + 1] not in optional_count[word]:
+                                optional_count[word][sentence[0][idx + 1]] = {}
+                            optional_count[word][sentence[0][idx + 1]][sentence[0][idx + 2]
+                                                                       ] = optional_count[word][sentence[0][idx + 1]].get(sentence[0][idx + 2], 0) + 1
 
     with open(WORD_COUNT, 'w', encoding='utf-8') as f:
         json.dump(count, f, ensure_ascii=False, indent=4)
-    with open(BINARY_WORD_COUNT, 'w', encoding='utf-8') as f:
-        json.dump(binary_count, f, ensure_ascii=False, indent=4)
     with open(FIRST_WORD_COUNT, 'w', encoding='utf-8') as f:
         json.dump(first_count, f, ensure_ascii=False, indent=4)
-                    
+    if ziyuan == 2:
+        with open(BINARY_WORD_COUNT, 'w', encoding='utf-8') as f:
+            json.dump(binary_count, f, ensure_ascii=False, indent=4)
+    elif ziyuan == 3:
+        with open(OPTIONAL_WORD_COUNT, 'w', encoding='utf-8') as f:
+            json.dump(optional_count, f, ensure_ascii=False, indent=4)
+
+
 if __name__ == '__main__':
     output_counts()

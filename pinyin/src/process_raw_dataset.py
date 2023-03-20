@@ -5,6 +5,7 @@ import json
 import os
 from pypinyin import lazy_pinyin, Style
 
+
 def process_raw_word_pinyin():
     words = []
 
@@ -12,7 +13,7 @@ def process_raw_word_pinyin():
         words = list(f.readline())
 
     if os.path.exists(WORD_TABLE):
-        print('一二级汉字表' + WORD_TABLE +  '已存在')
+        print('一二级汉字表' + WORD_TABLE + '已存在')
     else:
         with open(WORD_TABLE, 'r', encoding='utf-8') as f:
             json.dump(words, f, ensure_ascii=False, indent=4)
@@ -38,17 +39,22 @@ def process_raw_word_pinyin():
                 num += len(line_words[1:])
         with open(PINYIN2WORDS_DICT, 'w', encoding='utf-8') as f:
             json.dump(pinyin, f, ensure_ascii=False, indent=4)
-        print(f'创建拼音汉字对应表 {PINYIN2WORDS_DICT}, 共含 {num} 个汉字, 排除 {delete_num} 个非一二级词语')
+        print(
+            f'创建拼音汉字对应表 {PINYIN2WORDS_DICT}, 共含 {num} 个汉字, 排除 {delete_num} 个非一二级词语')
+
 
 def process_raw_sina_data(path):
     with open(path, 'r', encoding='gbk') as f:
         items = f.readlines()
         for item in items:
             item_dict = json.loads(item)
-            item_pinyin = lazy_pinyin(item_dict['title'], style=Style.NORMAL, errors=lambda item : ['*' for i in range(len(item))])
+            item_pinyin = lazy_pinyin(item_dict['title'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
             yield (item_dict['title'], item_pinyin)
-            item_pinyin = lazy_pinyin(item_dict['html'], style=Style.NORMAL, errors=lambda item : ['*' for i in range(len(item))])
+            item_pinyin = lazy_pinyin(item_dict['html'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
             yield (item_dict['html'], item_pinyin)
+
 
 if __name__ == '__main__':
     process_raw_word_pinyin()
