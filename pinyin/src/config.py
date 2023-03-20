@@ -12,3 +12,5 @@ WORD_COUNT = 'data/word_count.json'
 BINARY_WORD_COUNT = 'data/binary_word_count.json'
 FIRST_WORD_COUNT = 'data/first_word_count.json'
 OPTIONAL_WORD_COUNT = 'data/optional_word_count.json'
+
+OPTIONAL_WORD_CHILD = 'data/optional_word_count_%02d.json'
