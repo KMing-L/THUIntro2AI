@@ -1,10 +1,11 @@
 import json
 import os
+import argparse
 from process_raw_dataset import process_raw_word_pinyin, process_raw_sina_data
 from config import *
 
 
-def output_counts(ziyuan=2, force=False):
+def output_counts(ziyuan, force):
     if (not force) \
             and os.path.exists(WORD_COUNT) \
             and os.path.exists(FIRST_WORD_COUNT) \
@@ -123,4 +124,9 @@ def output_counts(ziyuan=2, force=False):
 
 
 if __name__ == '__main__':
-    output_counts()
+    parser = argparse.ArgumentParser(description='预处理字元模型')
+    parser.add_argument('--ziyuan', type=int, default=2, help='字元模型的资源类型')
+    parser.add_argument('-f', '--force', action='store_true', help='是否强制重新统计')
+    args = parser.parse_args()
+
+    output_counts(ziyuan=args.ziyuan, force=args.force)
