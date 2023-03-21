@@ -28,8 +28,8 @@ def output_counts(ziyuan, month):
                 if word in may_new:
                     is_first = True
                 continue
-            if len(sentence[1][idx])==3 and sentence[1:]=='ve':
-                sentence[1][idx] = sentence[0] + 'ue'
+            if len(sentence[1][idx])==3 and sentence[1][idx][1:]=='ve':
+                sentence[1][idx] = sentence[1][idx][0] + 'ue'
             if word in words \
                 and sentence[1][idx] in pinyin2words \
                 and word in pinyin2words[sentence[1][idx]]:
@@ -61,11 +61,11 @@ def output_counts(ziyuan, month):
                         optional_count[optional] = optional_count.get(optional, 0) + 1
 
     if ziyuan == 2:
-        with open(WORD_CHILD, 'w', encoding='utf-8') as f:
+        with open(WORD_CHILD % month, 'w', encoding='utf-8') as f:
             json.dump(count, f, ensure_ascii=False, indent=4)
-        with open(FIRST_WORD_CHILD, 'w', encoding='utf-8') as f:
+        with open(FIRST_WORD_CHILD % month, 'w', encoding='utf-8') as f:
             json.dump(first_count, f, ensure_ascii=False, indent=4)
-        with open(BINARY_WORD_CHILD, 'w', encoding='utf-8') as f:
+        with open(BINARY_WORD_CHILD % month, 'w', encoding='utf-8') as f:
             json.dump(binary_count, f, ensure_ascii=False, indent=4)
     elif ziyuan == 3:
         with open(OPTIONAL_WORD_CHILD % month, 'w', encoding='utf-8') as f:
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     parser.add_argument('--month', type=int)
     args = parser.parse_args()
 
-    output_counts(ziyuan=args.ziyuan, mon=args.month)
+    output_counts(ziyuan=args.ziyuan, month=args.month)
 
     if args.ziyuan==2:
         merge_all(WORD_CHILD, WORD_COUNT)

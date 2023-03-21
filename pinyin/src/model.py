@@ -59,6 +59,8 @@ class WordModel():
                 if idx == 0:
                     if self.first_count.get(this, 0) > 0:
                         f[idx][word] = -math.log(self.first_count[this]/self.count[this])
+                    else:
+                        f[idx][word] = float('inf')
                 else:
                     for last_word in f[idx - 1].keys():
                         last = last_word + pinyin[idx-1]
@@ -70,6 +72,17 @@ class WordModel():
                             if tmp < f[idx][word]:
                                 f[idx][word] = tmp
                                 l[idx][word] = last_word
+            if idx > 0 and l[idx] == dict.fromkeys(self.pinyin2words[yin], ''):
+                for word in self.pinyin2words[yin]:
+                    this = word + yin
+                    if self.first_count.get(this, 0) > 0:
+                        f[idx][word] = -math.log(self.first_count[this]/self.count[this])
+                        min = float('inf')
+                        for last_word in f[idx - 1].keys():
+                            if f[idx - 1][last_word] < min:
+                                min = f[idx - 1][last_word]
+                                l[idx][word] = last_word
+                    
         return self.__out_ans(f, l, pinyin)
 
     def __forward_optional(self, pinyin):
@@ -119,5 +132,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     model = WordModel(ziyuan=args.ziyuan)
     example = 'qing hua da xue shi shi jie yi liu da xue'
-    pinyin = ['di', 'dao', 'zhan', 'shi', 'yi', 'zhong', 'yi', 'di', 'dao', 'wei', 'ce', 'lue', 'ying', 'yong', 'de', 'lu', 'jun', 'bu', 'bing', 'zhan', 'shu']
+    pinyin = ['zhu', 'lu', 'xiu', 'qiao', 'gai', 'gao', 'lou', 'zan', 'men', 'tian', 'xia', 'zou']
     print(model.forward(pinyin))
