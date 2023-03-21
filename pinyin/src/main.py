@@ -1,6 +1,6 @@
 import argparse
 import sys
-from .model import WordModel
+from model import WordModel
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -51,8 +51,8 @@ if __name__ == '__main__':
             sentence_num += 1
         
         print('使用字元数为%d的字元模型' % args.ziyuan)
-        print('测试句子数：%d, 包含 %d 字' % sentence_num, word_num)
-        print('正确句子数：%d, 正确 %d 字' % correct_sentence_num, correct_word_num)
+        print('测试句子数：%d, 包含 %d 字' % (sentence_num, word_num))
+        print('正确句子数：%d, 正确 %d 字' % (correct_sentence_num, correct_word_num))
         print('句子正确率：%f' % (correct_sentence_num/sentence_num))
         print('字正确率：%f' % (correct_word_num/word_num))
     else:
