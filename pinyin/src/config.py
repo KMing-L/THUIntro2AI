@@ -17,3 +17,7 @@ WORD_CHILD = 'datasets/word_count_%02d.json'
 BINARY_WORD_CHILD = 'datasets/binary_word_count_%02d.json'
 FIRST_WORD_CHILD = 'datasets/first_word_count_%02d.json'
 OPTIONAL_WORD_CHILD = 'datasets/optional_word_count_%02d.json'
+
+alpha = 0.9999
+beta = 0.95
+all_word = 404076386

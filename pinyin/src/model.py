@@ -58,7 +58,8 @@ class WordModel():
                 this = word + yin
                 if idx == 0:
                     if self.first_count.get(this, 0) > 0:
-                        f[idx][word] = -math.log(self.first_count[this]/self.count[this])
+                        f[idx][word] = -math.log(alpha*self.first_count[this]/self.count[this] + (
+                            1-alpha)*(self.count[this]/all_word))
                     else:
                         f[idx][word] = float('inf')
                 else:
@@ -67,8 +68,8 @@ class WordModel():
                         binary = last + this
                         if self.count.get(last, 0) > 0 and \
                                 self.binary_count.get(binary, 0) > 0:
-                            tmp = f[idx - 1][last_word] + math.log(
-                                self.count[last]) - math.log(self.binary_count[binary])
+                            tmp = f[idx - 1][last_word] - math.log(
+                                alpha*self.binary_count[binary]/self.count[last] + (1-alpha)*(self.count[this]/all_word))
                             if tmp < f[idx][word]:
                                 f[idx][word] = tmp
                                 l[idx][word] = last_word
@@ -76,13 +77,14 @@ class WordModel():
                 for word in self.pinyin2words[yin]:
                     this = word + yin
                     if self.first_count.get(this, 0) > 0:
-                        f[idx][word] = -math.log(self.first_count[this]/self.count[this])
+                        f[idx][word] = -math.log(alpha*self.first_count[this]/self.count[this] + (
+                            1-alpha)*(self.count[this]/all_word))
                         min = float('inf')
                         for last_word in f[idx - 1].keys():
                             if f[idx - 1][last_word] < min:
                                 min = f[idx - 1][last_word]
                                 l[idx][word] = last_word
-                    
+
         return self.__out_ans(f, l, pinyin)
 
     def __forward_optional(self, pinyin):
@@ -97,15 +99,19 @@ class WordModel():
             for word in self.pinyin2words[yin]:
                 this = word + yin
                 if idx == 0:
-                    f[idx][word] = 0
+                    if self.first_count.get(this, 0) > 0:
+                        f[idx][word] = -math.log(alpha*self.first_count[this]/self.count[this] + (
+                            1-alpha)*(self.count[this]/all_word))
+                    else:
+                        f[idx][word] = float('inf')
                 elif idx == 1:
                     for last_word in f[idx - 1].keys():
                         last = last_word + pinyin[idx-1]
                         binary = last + this
                         if self.count.get(last, 0) > 0 and \
                                 self.binary_count.get(binary, 0) > 0:
-                            tmp = f[idx - 1][last_word] + math.log(
-                                self.count[last]) - math.log(self.binary_count[binary])
+                            tmp = f[idx - 1][last_word] - math.log(
+                                alpha*self.binary_count[binary]/self.count[last] + (1-alpha)*(self.count[this]/all_word))
                             if tmp < f[idx][word]:
                                 f[idx][word] = tmp
                                 l[idx][word] = last_word
@@ -118,11 +124,35 @@ class WordModel():
                             optional = last_last + last + this
                             if self.binary_count.get(binary, 0) > 0 and \
                                     self.optional_count.get(optional, 0) > 0:
-                                tmp = f[idx - 1][last_word] + math.log(self.binary_count[binary]) - math.log(
-                                    self.optional_count[optional])
+                                tmp = f[idx - 1][last_word] - math.log(beta*self.optional_count[optional]/self.binary_count[binary] + (
+                                    1-beta)*(alpha*self.binary_count.get(last+this, 0)/self.count[last] + (1-alpha)*(self.count[this]/all_word)))
                                 if tmp < f[idx][word]:
                                     f[idx][word] = tmp
                                     l[idx][word] = last_word
+            if idx > 1 and l[idx] == dict.fromkeys(self.pinyin2words[yin], ''):
+                for word in self.pinyin2words[yin]:
+                    this = word + yin
+                    for last_word in f[idx - 1].keys():
+                        last = last_word + pinyin[idx-1]
+                        binary = last + this
+                        if self.count.get(last, 0) > 0 and \
+                                self.binary_count.get(binary, 0) > 0:
+                            tmp = f[idx - 1][last_word] - math.log(
+                                alpha*self.binary_count[binary]/self.count[last] + (1-alpha)*(self.count[this]/all_word))
+                            if tmp < f[idx][word]:
+                                f[idx][word] = tmp
+                                l[idx][word] = last_word
+            if idx > 0 and l[idx] == dict.fromkeys(self.pinyin2words[yin], ''):
+                for word in self.pinyin2words[yin]:
+                    this = word + yin
+                    if self.first_count.get(this, 0) > 0:
+                        f[idx][word] = -math.log(alpha*self.first_count[this]/self.count[this] + (
+                            1-alpha)*(self.count[this]/all_word))
+                        min = float('inf')
+                        for last_word in f[idx - 1].keys():
+                            if f[idx - 1][last_word] < min:
+                                min = f[idx - 1][last_word]
+                                l[idx][word] = last_word
         return self.__out_ans(f, l, pinyin)
 
 
@@ -132,5 +162,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     model = WordModel(ziyuan=args.ziyuan)
     example = 'qing hua da xue shi shi jie yi liu da xue'
-    pinyin = ['zhu', 'lu', 'xiu', 'qiao', 'gai', 'gao', 'lou', 'zan', 'men', 'tian', 'xia', 'zou']
+    pinyin = example.split(' ')
     print(model.forward(pinyin))

@@ -1,5 +1,6 @@
 import argparse
 import sys
+from tqdm import tqdm
 from model import WordModel
 
 if __name__ == '__main__':
@@ -35,7 +36,8 @@ if __name__ == '__main__':
         sentence_num = 0
         correct_sentence_num = 0
 
-        for idx, line in enumerate(lines):
+        for idx in tqdm(range(len(lines))):
+            line = lines[idx]
             pinyin = line.strip().split(' ')
             sentence = model.forward(pinyin)
             sentences.append(''.join(sentence))

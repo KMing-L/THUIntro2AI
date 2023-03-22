@@ -3,3 +3,4 @@ datasets/
 __pycache__/
 optional_word_count.json
 binary_word_count.json
+test/
