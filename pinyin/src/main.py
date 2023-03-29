@@ -5,13 +5,30 @@ from model import WordModel
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ziyuan', type=int, default=2, help='字元模型的字元数')
+    parser.add_argument('--ziyuan', type=int, default=3, help='字元模型的字元数')
     parser.add_argument('-t', '--test', action='store_true', help='测试模式')
     parser.add_argument('-i', '--input', type=str, help='测试输入文件')
     parser.add_argument('-o', '--output', type=str, help='测试输出文件')
     parser.add_argument('-a', '--answer', type=str, help='测试答案文件')
+    parser.add_argument('-d', '--data_from', type=str, default='all', help='数据来源，sina/smp/baike/all')
+    parser.add_argument('--interaction', action='store_true', help='交互模式', default=False)
+    parser.add_argument('--alpha', type=float, default=0.99, help='alpha')
+    parser.add_argument('--beta', type=float, default=0.95, help='beta')
     args = parser.parse_args()
-    model = WordModel(ziyuan=args.ziyuan)
+    if args.data_from not in ['sina', 'smp', 'all', 'baike']:
+        print('数据来源只能为 sina 或者 smp 或者 baike 或者三者都用')
+        sys.exit(1)
+    model = WordModel(ziyuan=args.ziyuan, data_from=args.data_from)
+
+    if args.interaction:
+        while True:
+            pinyin = input('请输入一个句子的拼音，每个拼音间以空格分隔，若要退出可输入"q"：\n')
+            pinyin = pinyin.split(' ')
+            if pinyin[0] == 'q':
+                break
+            sentence = model.forward(pinyin)
+            print(sentence)
+        sys.exit(0)
 
     lines = []
     sentences = []
@@ -40,7 +57,7 @@ if __name__ == '__main__':
             line = lines[idx]
             pinyin = line.strip().split(' ')
             sentence = model.forward(pinyin)
-            sentences.append(''.join(sentence))
+            sentences.append(sentence)
             is_right = True
             word_num += len(sentence)
             for i in range(len(sentence)):
@@ -69,14 +86,14 @@ if __name__ == '__main__':
             pinyin = input('请输入一个句子的拼音，每个拼音间以空格分隔：')
             pinyin = pinyin.split(' ')
             sentence = model.forward(pinyin)
-            print(''.join(sentence))
-            sentences.append(''.join(sentence))
+            print(sentence)
+            sentences.append(sentence)
         else:
             for line in lines:
                 pinyin = line.strip().split(' ')
                 sentence = model.forward(pinyin)
-                sentences.append(''.join(sentence))
-                print(''.join(sentence))
+                sentences.append(sentence)
+                print(sentence)
     
     if args.output:
         with open(args.output, 'a', encoding='utf-8') as f:

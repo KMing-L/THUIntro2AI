@@ -1,2 +1,3 @@
 pypinyin
 tqdm
+pyecharts

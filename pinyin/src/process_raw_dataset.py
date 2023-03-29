@@ -56,6 +56,35 @@ def process_raw_sina_data(path):
             yield (item_dict['html'], item_pinyin)
 
 
+def process_raw_smp_data():
+    with open(SMP_DATA, 'r', encoding='gbk') as f:
+        items = f.readlines()
+        for item in items:
+            item_dict = eval(item)
+            item_pinyin = lazy_pinyin(item_dict['content'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
+            yield (item_dict['content'], item_pinyin)
+
+
+def process_raw_baike_data():
+    with open(BAIKE_DATA, 'r', encoding='utf-8') as f:
+        items = f.readlines()
+        for item in items:
+            item_dict = json.loads(item)
+            item_pinyin = lazy_pinyin(item_dict['category'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
+            yield (item_dict['category'], item_pinyin)
+            item_pinyin = lazy_pinyin(item_dict['title'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
+            yield (item_dict['title'], item_pinyin)
+            item_pinyin = lazy_pinyin(item_dict['desc'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
+            yield (item_dict['desc'], item_pinyin)
+            item_pinyin = lazy_pinyin(item_dict['answer'], style=Style.NORMAL, errors=lambda item: [
+                                      '*' for i in range(len(item))])
+            yield (item_dict['answer'], item_pinyin)
+
+
 if __name__ == '__main__':
     process_raw_word_pinyin()
     process_raw_sina_data()
