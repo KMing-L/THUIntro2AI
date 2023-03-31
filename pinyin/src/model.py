@@ -30,7 +30,7 @@ class WordModel():
             self.all_word = all_all_word
         self.alpha = alpha
         self.beta = beta
-    
+
     def set(self, alpha, beta):
         self.alpha = alpha
         self.beta = beta
@@ -65,6 +65,8 @@ class WordModel():
                         continue
                     P = self.alpha * self.binary_count.get(last + this, 0) / self.count[last] + (
                         1-self.alpha) * self.count[this] / self.all_word
+                    if P < 1e-10:
+                        continue
                     if this not in f[i] or f[i][this] > f[i-1][last] - math.log(P):
                         f[i][this] = f[i-1][last] - math.log(P)
                         l[i][this] = last
@@ -123,11 +125,8 @@ class WordModel():
                         if P < 1e-10:
                             continue
                         if this not in f[i+1][last] or f[i+1][last][this] > f[i][last_last][last] - math.log(P):
-                            if not P:
-                                f[i+1][last][this] = float('-inf')
-                            else:    
-                                f[i+1][last][this] = f[i][last_last][last] - \
-                                    math.log(P)
+                            f[i+1][last][this] = f[i][last_last][last] - \
+                                math.log(P)
                             l[i+1][last][this] = last_last
 
         max_w = ''

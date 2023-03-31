@@ -5,11 +5,17 @@ from model import WordModel
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_from', type=str, help='sina, smp, all, baike')
+    parser.add_argument('--part', type=int, default=0)
     args = parser.parse_args()
     
     ZiYuan = [2, 3]
-    Alpha = [0.85, 0.90, 0.95, 0.99, 0.999, 0.9999, 0.99999]
-    Beta = [0.85, 0.90, 0.95, 0.99, 0.999, 0.9999, 0.99999]
+    Alpha = [0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.999]
+    Beta = [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.999]
+    if args.part == 1:
+        Beta = [0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]
+    elif args.part == 2:
+        Beta = [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.999]
+
     with open('test/input.txt', 'r', encoding='utf-8') as f:
         lines = f.readlines()
     with open('test/std_output.txt', 'r', encoding='utf-8') as f:
@@ -58,8 +64,12 @@ if __name__ == '__main__':
             if ziyuan == 2:
                 break
     
-    with open(f'out/test_result_{args.data_from}.txt', 'w', encoding='utf-8') as f:
+    file_name = f'out/test_result_{args.data_from}'
+    if args.part != 0:
+        file_name += f'_{args.part}'
+
+    with open(file_name+'txt', 'w', encoding='utf-8') as f:
         for line in results_txt:
             f.write(line+'\n')
-    with open(f'out/test_result_{args.data_from}.json', 'w', encoding='utf-8') as f:
+    with open(file_name+'json', 'w', encoding='utf-8') as f:
         json.dump(results_json, f, indent=4)

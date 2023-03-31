@@ -5,14 +5,15 @@ import pyecharts.options as opts
 from pyecharts.charts import Bar3D
 
 
-def paint(x, x_name, y, y_name, data, z_name, title, min, max, file_name, width=80, depth=100):
-    Bar3D(init_opts=opts.InitOpts(width="1000px", height="500px")).add(
+def paint(x, x_name, y, y_name, data, z_name, title, min, max, file_name, width, depth):
+    Bar3D(init_opts=opts.InitOpts(width="1200px", height="700px")).add(
         series_name="",
         data=[[d[0], d[1], d[2]] for d in data],
         xaxis3d_opts=opts.Axis3DOpts(
-            data=x, type_="category", name=x_name),
+            data=x, type_="category", name=x_name) if len(x) == 4 else opts.Axis3DOpts(
+            type_="value", name=x_name, min_=0.37, max_=1.03),
         yaxis3d_opts=opts.Axis3DOpts(
-            data=y, type_="category", name=y_name),
+            type_="value", name=y_name, min_=0.47, max_=1.03),
         zaxis3d_opts=opts.Axis3DOpts(
             type_="value", name=z_name, min_=min, max_=max),
         grid3d_opts=opts.Grid3DOpts(
@@ -41,8 +42,9 @@ def paint(x, x_name, y, y_name, data, z_name, title, min, max, file_name, width=
 if __name__ == '__main__':
     data_sources = ['all', 'sina', 'baike', 'smp']
 
-    alpha = [0.85, 0.90, 0.95, 0.99, 0.999, 0.9999, 0.99999]
-    beta = [0.85, 0.90, 0.95, 0.99, 0.999, 0.9999, 0.99999]
+    alpha = [0.5, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.999]
+    beta = [0.4, 0.45, 0.5, 0.55, 0.6, 0.65,
+            0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.999]
 
     sent_corr = []
     word_corr = []
@@ -55,8 +57,8 @@ if __name__ == '__main__':
         with open(RESULT % source, 'r', encoding='utf-8') as f:
             results = json.load(f)
             for i, a in enumerate(alpha):
-                sent_corr.append((idx, i, results['2'][str(a)][0]))
-                word_corr.append((idx, i, results['2'][str(a)][1]))
+                sent_corr.append((idx, a, results['2'][str(a)][0]))
+                word_corr.append((idx, a, results['2'][str(a)][1]))
                 if results['2'][str(a)][0] < min_sent:
                     min_sent = results['2'][str(a)][0]
                 if results['2'][str(a)][0] > max_sent:
@@ -82,8 +84,8 @@ if __name__ == '__main__':
             results = json.load(f)
             for i, b in enumerate(beta):
                 for j, a in enumerate(alpha):
-                    sent_corr.append((i, j, results['3'][str(b)][str(a)][0]))
-                    word_corr.append((i, j, results['3'][str(b)][str(a)][1]))
+                    sent_corr.append((b, a, results['3'][str(b)][str(a)][0]))
+                    word_corr.append((b, a, results['3'][str(b)][str(a)][1]))
                     if results['3'][str(b)][str(a)][0] < min_sent:
                         min_sent = results['3'][str(b)][str(a)][0]
                     if results['3'][str(b)][str(a)][0] > max_sent:
@@ -93,6 +95,6 @@ if __name__ == '__main__':
                     if results['3'][str(b)][str(a)][1] > max_word:
                         max_word = results['3'][str(b)][str(a)][1]
             paint(beta, 'Beta', alpha, 'Alpha', sent_corr, 'SentenceCorrectness',
-                  f'训练{source}数据，三元模型下不同 Beta 不同 Alpha 的句子正确率', math.floor(min_sent*1000)/1000.0 - 0.001, math.floor(max_sent*1000)/1000.0 + 0.001, f'3SentenceCorrection_{source}.html', width=100, depth=100)
+                  f'训练{source}数据，三元模型下不同 Beta 不同 Alpha 的句子正确率', math.floor(min_sent*1000)/1000.0 - 0.001, math.floor(max_sent*1000)/1000.0 + 0.001, f'3SentenceCorrection_{source}.html', width=125, depth=100)
             paint(beta, 'Beta', alpha, 'Alpha', word_corr, 'WordCorrectness',
-                  f'训练{source}数据，三元模型下不同 Beta 不同 Alpha 的字正确率', math.floor(min_word*1000)/1000.0 - 0.001, math.floor(max_word*1000)/1000.0 + 0.001, f'3WordCorrection_{source}.html', width=100, depth=100)
+                  f'训练{source}数据，三元模型下不同 Beta 不同 Alpha 的字正确率', math.floor(min_word*1000)/1000.0 - 0.001, math.floor(max_word*1000)/1000.0 + 0.001, f'3WordCorrection_{source}.html', width=125, depth=100)
