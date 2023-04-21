@@ -34,16 +34,19 @@ def getWord2Vec(word2id: Dict) -> np.array:
     return word2vec
 
 
-def getData(path: str, word2id: Dict) -> Tuple[np.array, np.array]:
+def getData(path: str, word2id: Dict, maxLength=50) -> Tuple[np.array, np.array]:
     '''
     Return a tuple of np.array, (word_ids, labels)
     '''
-    wordIds = np.array([])
+    wordIDs = np.array([0] * maxLength)
     labels = np.array([])
     with open(path, 'r', encoding='utf-8') as f:
         for line in f.readlines():
-            line = line.strip().split()
-            word_ids = np.append(
-                word_ids, [word2id[word] for word in line[1:]])
-            labels = np.append(labels, int(line[0]))
-    return wordIds, labels
+            item = line.strip().split()
+            word_id = np.array([word2id.get(word, 0) for word in item[1:]])[:maxLength]
+            padding = max(0, maxLength - len(word_id))
+            word_id = np.pad(word_id, (0, padding), 'constant')
+            wordIDs = np.vstack([wordIDs, word_id])
+            labels = np.append(labels, int(item[0]))
+    wordIDs = np.delete(wordIDs, 0, 0)
+    return wordIDs, labels
