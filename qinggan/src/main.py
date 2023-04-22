@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from data_reader import getWord2Id, getData
-from model import MLP
+from model import *
 from typing import Tuple
 from tqdm import tqdm
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     epoch = 10
     batch_size = 64
     train_loader, test_loader, val_loader = getDataLoader(batch_size)
-    model = MLP().to(DEVICE)
+    model = RNN().to(DEVICE)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss = nn.CrossEntropyLoss()
     best_f1 = 0.0
