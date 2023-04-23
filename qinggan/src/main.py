@@ -29,21 +29,21 @@ def getDataLoader(batch_size: int) -> Tuple[DataLoader, DataLoader, DataLoader]:
 
 def test(model, data_loader):
     model.eval()
-    TP, FP, FN = 0, 0, 0
+    TP, FP, FN, TN = 0, 0, 0, 0
     t = tqdm(data_loader)
     for batch in t:
         t.set_description('Test: Epoch %d' % epoch)
         label = batch[1].to(DEVICE)
         output = model(batch[0].to(DEVICE))
-        # print(output[:20])
         TP += ((output.argmax(1) == 1) & (label == 1)).sum().item()
         FP += ((output.argmax(1) == 1) & (label == 0)).sum().item()
         FN += ((output.argmax(1) == 0) & (label == 1)).sum().item()
-    print('TP: %d, FP: %d, FN: %d' % (TP, FP, FN))
+        TN += ((output.argmax(1) == 0) & (label == 0)).sum().item()
     precision = TP / (TP + FP)
     recall = TP / (TP + FN)
     f1 = 2 * precision * recall / (precision + recall)
-    return precision, recall, f1
+    accuracy = (TP + TN) / (TP + FP + FN + TN)
+    return precision, recall, f1, accuracy
 
 
 def train(model, optimizer, loss, train_loader, epoch, val_loader):
@@ -67,18 +67,18 @@ if __name__ == '__main__':
     epoch = 10
     batch_size = 64
     train_loader, test_loader, val_loader = getDataLoader(batch_size)
-    model = RNN().to(DEVICE)
+    model = CNN().to(DEVICE)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss = nn.CrossEntropyLoss()
     best_f1 = 0.0
 
-    path_checkpoint = 'save_model/checkpoint.pkl'
+    path_checkpoint = 'results/checkpoint.pkl'
 
     for e in range(epoch):
-        val_precision, val_recall, val_f1 = train(
+        val_precision, val_recall, val_f1, val_acc = train(
             model, optimizer, loss, train_loader, e, val_loader)
-        print('Epoch %d: Val Precision: %.4f, Val Recall: %.4f, Val F1: %.4f' %
-              (e, val_precision, val_recall, val_f1))
+        print('Epoch: %d, Validation Precision: %.4f, Validation Recall: %.4f, Validation F1: %.4f, Validation Accuracy: %.4f' %
+              (e, val_precision, val_recall, val_f1, val_acc))
         if val_f1 > best_f1:
             best_f1 = val_f1
             checkpoint = {
@@ -93,6 +93,6 @@ if __name__ == '__main__':
     model.load_state_dict(checkpoint['model'])
     print('Best Epoch: %d' % checkpoint['epoch'])
     print('Validation F1: %.4f' % checkpoint['best_f1'])
-    test_precision, test_recall, test_f1 = test(model, test_loader)
-    print('Test Precision: %.4f, Test Recall: %.4f, Test F1: %.4f' %
-          (test_precision, test_recall, test_f1))
+    test_precision, test_recall, test_f1, test_acc = test(model, test_loader)
+    print('Test Precision: %.4f, Test Recall: %.4f, Test F1: %.4f, Test Accuracy: %.4f' %
+          (test_precision, test_recall, test_f1, test_acc))

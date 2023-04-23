@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 import numpy as np
 import gensim
 
@@ -15,7 +15,7 @@ def getWord2Id() -> Dict:
             for line in f.readlines():
                 for word in line.strip().split()[1:]:
                     if word not in word2id:
-                        word2id[word] = len(word2id)
+                        word2id[word] = len(word2id) + 1
     return word2id
 
 
@@ -27,7 +27,8 @@ def getWord2Vec(word2id: Dict) -> np.array:
     file = 'dataset/wiki_word2vec_50.bin'
     word2vecModel = gensim.models.KeyedVectors.load_word2vec_format(
         file, binary=True)
-    word2vec = np.array(np.zeros([len(word2id), word2vecModel.vector_size]))
+    word2vec = np.array(
+        np.zeros([len(word2id) + 1, word2vecModel.vector_size]))
     for word in word2id:
         if word in word2vecModel:
             word2vec[word2id[word]] = word2vecModel[word]
@@ -43,10 +44,25 @@ def getData(path: str, word2id: Dict, maxLength=50) -> Tuple[np.array, np.array]
     with open(path, 'r', encoding='utf-8') as f:
         for line in f.readlines():
             item = line.strip().split()
-            word_id = np.array([word2id.get(word, 0) for word in item[1:]])[:maxLength]
+            word_id = np.array([word2id.get(word, 0)
+                               for word in item[1:]])[:maxLength]
             padding = max(0, maxLength - len(word_id))
             word_id = np.pad(word_id, (0, padding), 'constant')
             wordIDs = np.vstack([wordIDs, word_id])
             labels = np.append(labels, int(item[0]))
     wordIDs = np.delete(wordIDs, 0, 0)
     return wordIDs, labels
+
+
+def getLLMData(path: str) -> Tuple[List, List]:
+    '''
+    Return a tuple of list, (contents, labels)
+    '''
+    contents = []
+    labels = []
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            item = line.strip().split()
+            contents.append(''.join(item[1:]))
+            labels.append(int(item[0]))
+    return contents, labels

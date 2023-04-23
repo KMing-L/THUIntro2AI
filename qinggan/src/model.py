@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from data_reader import getWord2Id, getWord2Vec
+from transformers import BertModel
 
 word2id = getWord2Id()
 word2vec = getWord2Vec(word2id)
@@ -10,7 +11,7 @@ word2vec = getWord2Vec(word2id)
 class MLP(nn.Module):
     def __init__(self):
         super(MLP, self).__init__()
-        self.embedding = nn.Embedding(len(word2id), 50)
+        self.embedding = nn.Embedding(len(word2id) + 1, 50)
         self.embedding.weight.data.copy_(torch.from_numpy(word2vec))
         self.embedding.weight.requires_grad = False
         self.relu = nn.ReLU()
@@ -29,7 +30,7 @@ class MLP(nn.Module):
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.embedding = nn.Embedding(len(word2id), 50)
+        self.embedding = nn.Embedding(len(word2id) + 1, 50)
         self.embedding.weight.data.copy_(torch.from_numpy(word2vec))
         self.embedding.weight.requires_grad = False
         self.conv1 = nn.Conv2d(1, 20, (3, 50))
@@ -58,7 +59,7 @@ class CNN(nn.Module):
 class RNN(nn.Module):
     def __init__(self):
         super(RNN, self).__init__()
-        self.embedding = nn.Embedding(len(word2id), 50)
+        self.embedding = nn.Embedding(len(word2id) + 1, 50)
         self.embedding.weight.data.copy_(torch.from_numpy(word2vec))
         self.embedding.weight.requires_grad = False
         self.encoder = nn.LSTM(
