@@ -35,7 +35,7 @@ def getWord2Vec(word2id: Dict) -> np.array:
     return word2vec
 
 
-def getData(path: str, word2id: Dict, maxLength=50) -> Tuple[np.array, np.array]:
+def getData(path: str, word2id: Dict, maxLength=100) -> Tuple[np.array, np.array]:
     '''
     Return a tuple of np.array, (word_ids, labels)
     '''

@@ -1,6 +1,6 @@
 from transformers import Trainer, TrainingArguments
 import torch
-from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast
+from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast, AutoTokenizer, AutoModelForSequenceClassification
 from data_reader import getLLMData
 import evaluate
 import numpy as np
@@ -9,7 +9,8 @@ train_texts, train_labels = getLLMData('dataset/train.txt')
 val_texts, val_labels = getLLMData('dataset/validation.txt')
 test_texts, test_labels = getLLMData('dataset/test.txt')
 
-tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
+# tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
+tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
 
 train_encodings = tokenizer(
     train_texts, truncation=True, padding=True)
@@ -38,21 +39,22 @@ test_dataset = BertDataset(test_encodings, test_labels)
 
 
 training_args = TrainingArguments(
-    output_dir='./results',          # output directory
+    output_dir='./saved',          # output directory
     num_train_epochs=3,              # total # of training epochs
-    per_device_train_batch_size=4,  # batch size per device during training
-    per_device_eval_batch_size=4,   # batch size for evaluation
+    per_device_train_batch_size=16,  # batch size per device during training
+    per_device_eval_batch_size=16,   # batch size for evaluation
     warmup_steps=500,                # number of warmup steps for learning rate scheduler
     weight_decay=0.01,               # strength of weight decay
     logging_dir='./logs',            # directory for storing logs
     logging_steps=10,
 )
 
+model = AutoModelForSequenceClassification.from_pretrained(
+    './saved/checkpoint-3000')
 # model = DistilBertForSequenceClassification.from_pretrained(
-# './results/checkpoint-2500')
-model = DistilBertForSequenceClassification.from_pretrained(
-    "distilbert-base-uncased")
-
+#     "distilbert-base-uncased")
+# model = AutoModelForSequenceClassification.from_pretrained(
+#     "bert-base-chinese")
 
 trainer = Trainer(
     # the instantiated 🤗 Transformers model to be trained
@@ -62,7 +64,7 @@ trainer = Trainer(
     eval_dataset=val_dataset,          # evaluation dataset
 )
 
-trainer.train()
+# trainer.train()
 
 # trainer.evaluate()
 

@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from data_reader import getWord2Id, getWord2Vec
-from transformers import BertModel
 
 word2id = getWord2Id()
 word2vec = getWord2Vec(word2id)
