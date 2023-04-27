@@ -6,6 +6,9 @@ import json
 
 
 def drawAccF1(iter, change_str, read_path):
+    '''
+    Draw Accuracy & F1 score of different model
+    '''
     CNN_results = []
     RNN_results = []
     MLP_results = []
@@ -53,6 +56,9 @@ def drawAccF1(iter, change_str, read_path):
 
 
 def drawLoss():
+    '''
+    Draw Loss of CNN/RNN/MLP while training or validating
+    '''
     read_path = 'results/result_%s_bs16_lr0.010000_ep10_ml64.pickle'
     with open(read_path % ('CNN'), 'rb') as f:
         CNN_result = pickle.load(f)
@@ -100,6 +106,9 @@ def drawLoss():
 
 
 def drawModelACCF1():
+    '''
+    Draw Accuracy & F1 score of different models
+    '''
     read_path = 'results/result_%s_bs16_lr0.010000_ep10_ml64.pickle'
     with open(read_path % ('CNN'), 'rb') as f:
         CNN_result = pickle.load(f)
@@ -107,9 +116,9 @@ def drawModelACCF1():
         RNN_result = pickle.load(f)
     with open(read_path % ('MLP'), 'rb') as f:
         MLP_result = pickle.load(f)
-    models = ['MLP', 'CNN', 'RNN', 'BERT']
-    acc = [MLP_result['accuracy'], CNN_result['accuracy'], RNN_result['accuracy'], 0.90]
-    f1 = [MLP_result['f1'], CNN_result['f1'], RNN_result['f1'], 0.90]
+    models = ['MLP', 'CNN', 'RNN', 'BERT_noFinetune', 'BERT']
+    acc = [MLP_result['accuracy'], CNN_result['accuracy'], RNN_result['accuracy'], 0.37, 0.89]
+    f1 = [MLP_result['f1'], CNN_result['f1'], RNN_result['f1'], 0.49, 0.89]
     data = {'Model': models, 'Accuracy': acc, 'F1 Score': f1}
     df = pd.DataFrame(data)
     plt.cla()
@@ -123,6 +132,9 @@ def drawModelACCF1():
 
 
 def drawBertLoss():
+    '''
+    Draw Loss of Bert while training
+    '''
     with open('saved/checkpoint-3500/trainer_state.json', 'r') as f:
         bert_result = json.load(f)
     steps = [str(bert_result['log_history'][i]['step']) for i in range(len(bert_result['log_history']))]

@@ -39,7 +39,7 @@ test_dataset = BertDataset(test_encodings, test_labels)
 
 
 training_args = TrainingArguments(
-    output_dir='./saved',          # output directory
+    output_dir='./saved',            # output directory
     num_train_epochs=3,              # total # of training epochs
     per_device_train_batch_size=16,  # batch size per device during training
     per_device_eval_batch_size=16,   # batch size for evaluation
@@ -61,7 +61,7 @@ trainer = Trainer(
     model=model,
     args=training_args,                  # training arguments, defined above
     train_dataset=train_dataset,         # training dataset
-    eval_dataset=val_dataset,          # evaluation dataset
+    eval_dataset=val_dataset,            # evaluation dataset
 )
 
 # trainer.train()

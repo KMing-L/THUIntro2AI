@@ -13,17 +13,17 @@ class MLP(nn.Module):
         self.embedding = nn.Embedding(len(word2id) + 1, 50)
         self.embedding.weight.data.copy_(torch.from_numpy(word2vec))
         self.embedding.weight.requires_grad = False
+        self.mlp_layer = nn.Linear(50, 128)
         self.relu = nn.ReLU()
-        self.hidden = nn.Linear(50, 100)
-        self.out = nn.Linear(100, 2)
-        nn.init.normal_(self.hidden.weight, mean=0, std=0.01)
+        self.out = nn.Linear(128, 2)
+        nn.init.normal_(self.mlp_layer.weight, mean=0, std=0.01)
         nn.init.normal_(self.out.weight, mean=0, std=0.01)
 
     def forward(self, sentence):
-        embedding = self.embedding(sentence)
-        out = self.relu(self.hidden(embedding)).permute(0, 2, 1)
-        out = F.max_pool1d(out, out.size(2)).squeeze(2)
-        return self.out(out)
+        embedding = self.embedding(sentence)                            # B * len * 50
+        out = self.relu(self.mlp_layer(embedding)).permute(0, 2, 1)     # B * 128 * len
+        out = F.max_pool1d(out, out.size(2)).squeeze(2)                 # B * 128
+        return self.out(out)                                            # B * 2
 
 
 class CNN(nn.Module):
@@ -46,7 +46,7 @@ class CNN(nn.Module):
         return x
     
     def forward(self, sentence):
-        x = self.embedding(sentence).unsqueeze(1)
+        x = self.embedding(sentence).unsqueeze(1)   # B * len * 50
         x1 = self.conv_and_pool(x, self.conv1)
         x2 = self.conv_and_pool(x, self.conv2)
         x3 = self.conv_and_pool(x, self.conv3)
@@ -63,15 +63,15 @@ class RNN(nn.Module):
         self.embedding.weight.requires_grad = False
         self.encoder = nn.LSTM(
             input_size=50,
-            hidden_size=100,
+            hidden_size=128,
             num_layers=2,
             bidirectional=True,
         )
-        self.decoder = nn.Linear(200, 64)
+        self.decoder = nn.Linear(256, 64)
         self.fc = nn.Linear(64, 2)
     
     def forward(self, sentence):
         embedding = self.embedding(sentence)
         _, (h_n, _) = self.encoder(embedding.permute(1, 0, 2))
-        h_n = h_n.view(2, 2, -1, 100)
+        h_n = h_n.view(2, 2, -1, 128)
         return self.fc(self.decoder(torch.cat((h_n[-1, 0], h_n[-1, 1]), dim=-1)))
