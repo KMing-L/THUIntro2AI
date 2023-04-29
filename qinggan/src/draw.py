@@ -59,7 +59,7 @@ def drawLoss():
     '''
     Draw Loss of CNN/RNN/MLP while training or validating
     '''
-    read_path = 'results/result_%s_bs16_lr0.010000_ep10_ml64.pickle'
+    read_path = 'results/result_%s_bs16_lr0.001000_ep10_ml64.pickle'
     with open(read_path % ('CNN'), 'rb') as f:
         CNN_result = pickle.load(f)
     with open(read_path % ('RNN'), 'rb') as f:
@@ -109,7 +109,7 @@ def drawModelACCF1():
     '''
     Draw Accuracy & F1 score of different models
     '''
-    read_path = 'results/result_%s_bs16_lr0.010000_ep10_ml64.pickle'
+    read_path = 'results/result_%s_bs16_lr0.001000_ep10_ml64.pickle'
     with open(read_path % ('CNN'), 'rb') as f:
         CNN_result = pickle.load(f)
     with open(read_path % ('RNN'), 'rb') as f:
@@ -154,10 +154,12 @@ def drawBertLoss():
 if __name__ == '__main__':
     drawAccF1([0.0001, 0.001, 0.01, 0.1, 1], 'Learning Rate',
               'results/result_%s_bs16_lr%f_ep10_ml64.pickle')
-    drawAccF1([4, 8, 16, 32, 64, 128, 256], 'Batch Size',
-              'results/result_%s_bs%d_lr0.010000_ep10_ml64.pickle')
+    drawAccF1([4, 8, 16, 32, 64, 128, 256, 512], 'Batch Size',
+              'results/result_%s_bs%d_lr0.001000_ep10_ml64.pickle')
     drawAccF1([16, 32, 64, 128, 256], 'Sentence Max Length',
-              'results/result_%s_bs16_lr0.010000_ep10_ml%d.pickle')
+              'results/result_%s_bs16_lr0.001000_ep10_ml%d.pickle')
+    drawAccF1([5, 10, 15, 20], 'Epoch',
+              'results/result_%s_bs16_lr0.001000_ep%d_ml64.pickle')
     drawLoss()
     drawModelACCF1()
     drawBertLoss()

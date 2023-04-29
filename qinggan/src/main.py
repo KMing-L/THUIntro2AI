@@ -13,7 +13,7 @@ def argparser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='MLP')
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--lr', type=float, default=0.01)
+    parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--epoch', type=int, default=10)
     parser.add_argument('--max_length', type=int, default=64)
     return parser.parse_args()
