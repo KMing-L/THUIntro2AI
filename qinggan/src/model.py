@@ -14,14 +14,15 @@ class MLP(nn.Module):
         self.embedding.weight.data.copy_(torch.from_numpy(word2vec))
         self.embedding.weight.requires_grad = False
         self.mlp_layer = nn.Linear(50, 128)
+        self.dropout = nn.Dropout(0.4)
         self.relu = nn.ReLU()
         self.fc = nn.Linear(128, 2)
 
     def forward(self, sentence):
-        embedding = self.embedding(sentence)                            # B * len * 50
-        out = self.relu(self.mlp_layer(embedding)).permute(0, 2, 1)     # B * 128 * len
-        out = F.max_pool1d(out, out.shape[2]).squeeze(2)                # B * 128
-        return self.fc(out)                                             # B * 2
+        embedding = self.embedding(sentence)                                          # B * len * 50
+        out = self.relu(self.dropout(self.mlp_layer(embedding))).permute(0, 2, 1)     # B * 128 * len
+        out = F.max_pool1d(out, out.shape[2]).squeeze(2)                              # B * 128
+        return self.fc(out)                                                           # B * 2
 
 
 class CNN(nn.Module):
